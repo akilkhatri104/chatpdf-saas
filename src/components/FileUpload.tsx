@@ -18,7 +18,7 @@ const FileUpload = () => {
             fileKey: string;
             fileName: string;
         }) => {
-            const res = await axios.post("/api/create-app", {
+            const res = await axios.post("/api/create-chat", {
                 fileKey,
                 fileName,
             });
@@ -47,6 +47,7 @@ const FileUpload = () => {
                     toast.error("Failed to upload file. Please try again.");
                     return
                 }
+                console.log("File uploaded to S3:", data);
                 mutate({
                     fileKey: data.fileKey,
                     fileName: data.fileName,

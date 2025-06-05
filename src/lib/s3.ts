@@ -1,50 +1,41 @@
-import AWS from 'aws-sdk'
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-export async function uploadToS3(file : File) {
+export const uploadToS3 = async (file: File) => {
     try {
-        AWS.config.update({
-            accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-        })
-
-        const s3 = new AWS.S3({
-            params: {
-                Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET_NAME,
+        const s3 = new S3Client({
+            credentials: {
+                accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID!,
+                secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY!,
             },
-            region: process.env.NEXT_PUBLIC_AWS_REGION,
-        })  
-        
+            region: process.env.NEXT_PUBLIC_AWS_REGION!,requestChecksumCalculation: "WHEN_REQUIRED"
+        });
+    
         const fileKey = `uploads/${Date.now().toString()}-${file.name.replace(' ','-')}`
-
-        const params = {
-            Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET_NAME!,
+    
+        const command = new PutObjectCommand({
+            Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET_NAME,
             Key: fileKey,
             Body: file,
-        }
-
-        const upload = s3.putObject(params).on('httpUploadProgress',e => {
-            console.log(`Upload progress: ${Math.round((e.loaded / e.total) * 100).toString()}%`);
-            
-        }).promise()
-
-        await upload
-        .then(() => {
-            console.log('File uploaded successfully:', fileKey);
-            
-        })
-
-        return Promise.resolve({
-            fileKey,
+        });
+    
+        const res = await s3.send(command)
+        console.log("S3 upload response: ",res);
+        return {
+            fileKey: fileKey,
             fileName: file.name,
-        })
-    } catch (error) {
-        console.error('Error configuring AWS SDK:', error);
-        throw new Error('Failed to configure AWS SDK');
+            status: res.$metadata.httpStatusCode,
+            success: res.$metadata.httpStatusCode < 400
+        }
+    } catch (error: any) {
+        console.error("Error :: uploadToS3:: ",error);
+        throw new Error("(uploadToS3) Error while uploading to S3",error.message)
         
     }
-}
+    
+};
 
-export function getFileUrl(fileKey: string) {
-    const url = `https://${process.env.NEXT_PUBLIC_AWS_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${fileKey}`;
+
+export function getS3Url(fileKey: string) {
+    const url = `https://${process.env.NEXT_PUBLIC_AWS_BUCKET_NAME}.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${fileKey}`;
     return url;
 }
