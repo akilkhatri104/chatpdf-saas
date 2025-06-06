@@ -27,7 +27,7 @@ export const downloadFromS3 = async (fileKey : string) => {
         
         const publicDir = path.join(process.cwd(),'public')
         const tmpDir = path.join(publicDir,'tmp')
-        const filePath = path.join(tmpDir,`${Date.now().toString()}.pdf`)
+        const filePath = path.join(tmpDir,`${fileKey.replace('/','-')}.pdf`)
 
         if(res.Body instanceof Readable){
             const file = fs.createWriteStream(filePath)
