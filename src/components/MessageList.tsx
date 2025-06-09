@@ -37,7 +37,7 @@ const MessageList = ({ messages,isLoading }: Props) => {
 
     return (
         <div className="flex flex-col  gap-2 p-4 h-full overflow-auto w-full" id='chat-container'>
-            {messages.map((message, index) => (
+            {messages.map((message) => (
                 <div
                     key={message.id}
                     className={cn("flex", {

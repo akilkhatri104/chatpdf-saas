@@ -1,4 +1,3 @@
-import { vector } from "drizzle-orm/pg-core";
 import { getPineconeClient } from "./pinecone";
 import { convertToASCII } from "./utils";
 import { getEmbeddings } from "./embeddings";
