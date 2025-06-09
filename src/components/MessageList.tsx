@@ -1,12 +1,21 @@
 import { cn } from "@/lib/utils";
 import { Message } from "@ai-sdk/react";
-import React from "react";
+import { Loader2 } from "lucide-react";
+import React, { useEffect } from "react";
 
 type Props = {
     messages: Message[];
+    isLoading: boolean;
 };
 
-const MessageList = ({ messages }: Props) => {
+const MessageList = ({ messages,isLoading }: Props) => {
+    if(isLoading) {
+        return (
+            <div className="flex p-4 justify-center w-full h-full">
+                <Loader2  className="w-6 h-6 animate-spin"/>
+            </div>
+        )
+    }
     if (!messages || messages.length === 0) {
         return (
             <div className="text-gray-500 text-center w-full h-full flex items-center justify-center">
@@ -15,8 +24,18 @@ const MessageList = ({ messages }: Props) => {
         );
     }
 
+    useEffect(() => {
+        const chatContainer = document.getElementById('chat-container');
+        if (chatContainer) {
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    }, [messages]);
+
     return (
-        <div className="flex flex-col  gap-2 p-4 h-full overflow-auto w-full">
+        <div className="flex flex-col  gap-2 p-4 h-full overflow-auto w-full" id='chat-container'>
             {messages.map((message, index) => (
                 <div
                     key={message.id}

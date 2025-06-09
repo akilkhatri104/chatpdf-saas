@@ -5,6 +5,7 @@ import {Document,RecursiveCharacterTextSplitter} from '@pinecone-database/doc-sp
 import { getEmbeddings } from "./embeddings";
 import md5 from 'md5'
 import { convertToASCII } from "./utils"
+import {unlinkSync} from 'fs'
 
 let pinecone: Pinecone | null = null;
 
@@ -12,7 +13,7 @@ export const getPineconeClient = async () => {
     try {
         if(!pinecone){
             pinecone = new Pinecone({
-                apiKey: process.env.PINECONE_API_KEY!
+                apiKey: process.env.PINECONE_API_KEY!,
             })
         }
         return pinecone
@@ -58,6 +59,7 @@ export const loadS3IntoPinecone = async (fileKey : string ) => {
     await index.upsert(vectors)
 
     
+    unlinkSync(fileName) // clean up the downloaded file
 
     return documents[0]
 }
