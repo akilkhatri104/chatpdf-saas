@@ -6,6 +6,7 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import ChatSideBar from '@/components/ChatSideBar'
 import PDFViewer from '@/components/PDFViewer'
+import ChatComponent from '@/components/ChatComponent'
 
 type Props = {
     params: {
@@ -42,7 +43,7 @@ async function ChatPage({params: {chatId}}: Props) {
             </div>
             {/* chat component */}
             <div className='flex-[3] b border-1-4 '>
-                {/* <ChatComponent /> */}
+                <ChatComponent />
             </div>
         </div>
     </div>

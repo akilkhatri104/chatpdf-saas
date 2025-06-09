@@ -17,7 +17,7 @@ const ChatSideBar = ({chats,chatId}: Props) => {
             <Button  className='border-dashed border border-white w-full'><PlusCircle className='mr-2 h-4 w-4' /> New Chat</Button>
         </Link>
 
-        <div className='flex flex-col gap-2 mt-4 overflow-y-auto'>
+        <div className='flex flex-col-reverse gap-2 mt-4 overflow-y-auto'>
             {chats.map(chat => (
                 <Link key={chat.id} href={`/chat/${chat.id}`} className={`p-2 rounded-md hover:bg-gray-800 ${chat.id === chatId ? 'bg-gray-700' : ''}`}>
                     <div className='flex items-center'>
