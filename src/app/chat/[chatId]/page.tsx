@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import React from 'react'
 import { redirect } from 'next/navigation'
 import ChatSideBar from '@/components/ChatSideBar'
+import PDFViewer from '@/components/PDFViewer'
 
 type Props = {
     params: {
@@ -26,16 +27,18 @@ async function ChatPage({params: {chatId}}: Props) {
     if(!_chats.find(chat => chat.id === parseInt(chatId))) {
         return redirect('/')
     }
+
+    const currentChat = _chats.find(chat => chat.id === parseInt(chatId))
   return (
     <div className='flex max-h-screen '>
         <div className='flex w-full max-h-screen'>
             {/* Chat Sidebar */}
-            <div className='flex-[1] max-w-xs'>
+            <div className='flex-[2] max-w-xs'>
                 <ChatSideBar chats={_chats} chatId={parseInt(chatId)} />
             </div>
             {/* PDF Viewver */}
-            <div className='max-h-screen p-4  flex[5]'>
-                {/* <PDFViewer /> */}
+            <div className='max-h-screen p-4  flex-[5]'>
+                <PDFViewer pdfUrl={currentChat?.pdfUrl || ''} />
             </div>
             {/* chat component */}
             <div className='flex-[3] b border-1-4 '>
