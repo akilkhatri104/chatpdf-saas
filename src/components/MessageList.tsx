@@ -9,6 +9,15 @@ type Props = {
 };
 
 const MessageList = ({ messages,isLoading }: Props) => {
+    useEffect(() => {
+        const chatContainer = document.getElementById('chat-container');
+        if (chatContainer) {
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    }, [messages]);
     if(isLoading) {
         return (
             <div className="flex p-4 justify-center w-full h-full">
@@ -24,15 +33,7 @@ const MessageList = ({ messages,isLoading }: Props) => {
         );
     }
 
-    useEffect(() => {
-        const chatContainer = document.getElementById('chat-container');
-        if (chatContainer) {
-            chatContainer.scrollTo({
-                top: chatContainer.scrollHeight,
-                behavior: 'smooth'
-            })
-        }
-    }, [messages]);
+    
 
     return (
         <div className="flex flex-col  gap-2 p-4 h-full overflow-auto w-full" id='chat-container'>
