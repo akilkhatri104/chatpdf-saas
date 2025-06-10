@@ -15,14 +15,24 @@ type Props = {
 
 
 const ChatComponent = ({chatId}: Props) => {
+    // const [isFetching, setIsFetching] = React.useState(false);
     const {data: chatMessages,isLoading}= useQuery({
         queryKey: ['chat', chatId],
         queryFn: async() => {
-            const response = await axios.post<Message[]>(`/api/get-messages`,{chatId});
-            if (response.status !== 200) {
-                throw new Error('Failed to fetch messages');
+            // setIsFetching(true);
+            try {
+                const response = await axios.post(`/api/get-messages`,{chatId});
+                if (response.status !== 200) {
+                    throw new Error('Failed to fetch messages');
+                }
+                // setIsFetching(false);
+                return response.data?.messages;
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+                // setIsFetching(false);
+                return [];
+                
             }
-            return response.data;
         }
     })
     const {input,handleInputChange,handleSubmit,messages,} = useChat({
