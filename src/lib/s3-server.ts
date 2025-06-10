@@ -6,6 +6,7 @@ import { NodeJsClient } from "@smithy/types";
 import fs from 'fs'
 import { Readable } from "stream";
 import path from "path";
+import os from 'os'
 
 export const downloadFromS3 = async (fileKey : string) => {
     return new Promise(async (resolve,reject) => {
@@ -25,9 +26,12 @@ export const downloadFromS3 = async (fileKey : string) => {
             })
         )
         
-        const publicDir = path.join(process.cwd(),'public')
-        const tmpDir = path.join(publicDir,'tmp')
-        const filePath = path.join(tmpDir,`${fileKey.replace('/','-')}.pdf`)
+        const tempDir = os.tmpdir()
+        if(!fs.existsSync('tmp')) {
+            fs.mkdirSync('tmp', { recursive: true });
+        }
+        const filePath = path.join(tempDir, `${fileKey.replace('/', '-')}`); // Save to a temporary file
+        // `/tmp/${fileKey.replace('/','-')}.pdf`
 
         if(res.Body instanceof Readable){
             const file = fs.createWriteStream(filePath)
