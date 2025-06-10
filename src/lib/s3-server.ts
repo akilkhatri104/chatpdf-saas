@@ -28,7 +28,7 @@ export const downloadFromS3 = async (fileKey : string) => {
         
         const tempDir = os.tmpdir()
         if(!fs.existsSync('tmp')) {
-            fs.mkdirSync('tmp', { recursive: true });
+            fs.mkdirSync(tempDir, { recursive: true });
         }
         const filePath = path.join(tempDir, `${fileKey.replace('/', '-')}`); // Save to a temporary file
         // `/tmp/${fileKey.replace('/','-')}.pdf`
