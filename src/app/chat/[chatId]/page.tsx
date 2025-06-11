@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { chats } from "@/lib/db/schema";
+import { chats, DrizzleChat } from "@/lib/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import {  desc, eq } from "drizzle-orm";
 import React from "react";
@@ -8,6 +8,7 @@ import ChatSideBar from "@/components/ChatSideBar";
 import PDFViewer from "@/components/PDFViewer";
 import ChatComponent from "@/components/ChatComponent";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import PDFChatTabs from "@/components/PDFChatTabs";
 
 type Props = {
     params: {
@@ -34,23 +35,14 @@ async function ChatPage({ params: { chatId } }: Props) {
         return redirect("/");
     }
 
-    const currentChat = _chats.find((chat) => chat.id === parseInt(chatId));
+    const currentChat: DrizzleChat | undefined = _chats.find((chat) => chat.id === parseInt(chatId));
     return (
         <SidebarProvider>
             <ChatSideBar chats={_chats} chatId={parseInt(chatId)} />
 
             <main className="w-screen h-screen flex flex-row bg-gray-900 text-gray-200">
                 <SidebarTrigger />
-                <div className="flex w-full max-h-screen">
-                    {/* PDF Viewver */}
-                    <div className="max-h-screen w-1/2 p-2 bg-gray-800">
-                        <PDFViewer pdfUrl={currentChat?.pdfUrl || ""} />
-                    </div>
-                    {/* chat component */}
-                    <div className=" w-1/2 border-1-4 ">
-                        <ChatComponent chatId={parseInt(chatId)} />
-                    </div>
-                </div>
+                <PDFChatTabs currentChat={currentChat} />
             </main>
         </SidebarProvider>
     );

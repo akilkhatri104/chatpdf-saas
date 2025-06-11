@@ -23,8 +23,8 @@ export default async function Home() {
         <div className="w-screen min-h-screen bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="flex gap-x-2 flex-col items-center text-center">
-                    <div className="flex items-center">
-                        <h1 className="mr-3 text-5xl font-semibold">
+                    <div className="flex md:flex-row flex-col items-center gap-2 justify-center">
+                        <h1 className="mr-3 text-center text-5xl font-semibold">
                             Chat with any PDF
                         </h1>
                         <UserButton />

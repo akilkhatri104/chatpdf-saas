@@ -18,7 +18,7 @@ type Props = {
 
 const ChatSideBar = ({ chats, chatId }: Props) => {
     return (
-        <Sidebar className="w-64 h-screen bg-gray-900 text-gray-200">
+        <Sidebar className="w-64 h-screen bg-gray-900 text-gray-200 dark:bg-gray-800 dark:text-gray-300">
             <SidebarHeader>
                 <Link href="/">
                     <Button className="border-dashed border border-white w-full">
@@ -31,7 +31,7 @@ const ChatSideBar = ({ chats, chatId }: Props) => {
                     <Link
                         key={chat.id}
                         href={`/chat/${chat.id}`}
-                        className={`p-2 rounded-md hover:bg-gray-800 ${
+                        className={`p-2 text-gray-300 rounded-md hover:bg-gray-800 ${
                             chat.id === chatId ? "bg-gray-700" : ""
                         }`}
                     >
