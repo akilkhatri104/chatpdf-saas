@@ -41,7 +41,7 @@ async function ChatPage({ params: { chatId } }: Props) {
             <ChatSideBar chats={_chats} chatId={parseInt(chatId)} />
 
             <main className="w-screen h-screen flex flex-row bg-gray-900 text-gray-200">
-                <SidebarTrigger />
+                <SidebarTrigger className="hidden md:grid"/>
                 <PDFChatTabs currentChat={currentChat} />
             </main>
         </SidebarProvider>
