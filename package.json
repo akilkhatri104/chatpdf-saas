@@ -6,7 +6,8 @@
     "dev": "set NODE_OPTIONS='--max-old-space-size=8192' && next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:push": "npx drizzle-kit push"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.19",
@@ -19,6 +20,7 @@
     "@neondatabase/serverless": "^1.0.0",
     "@pinecone-database/doc-splitter": "^0.0.1",
     "@pinecone-database/pinecone": "^6.1.0",
+    "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
@@ -38,6 +40,7 @@
     "md5": "^2.3.0",
     "next": "15.3.3",
     "pdf-parse": "^1.1.1",
+    "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",

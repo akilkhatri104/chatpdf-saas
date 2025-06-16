@@ -5,8 +5,6 @@ import {  desc, eq } from "drizzle-orm";
 import React from "react";
 import { redirect } from "next/navigation";
 import ChatSideBar from "@/components/ChatSideBar";
-import PDFViewer from "@/components/PDFViewer";
-import ChatComponent from "@/components/ChatComponent";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import PDFChatTabs from "@/components/PDFChatTabs";
 
