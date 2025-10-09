@@ -9,3 +9,10 @@ export function cn(...inputs: ClassValue[]) {
 export function convertToASCII(inputString : string){
   return inputString.replace(/[^\x00-\x7F]+/g,'')
 }
+
+export function handleError(error : unknown){
+  if(error instanceof Error)
+    return {error: error.message}
+  else
+    return {error: "An error occurred!"}
+}

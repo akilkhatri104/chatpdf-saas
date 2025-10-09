@@ -35,7 +35,7 @@ const ChatComponent = ({chatId}: Props) => {
             }
         }
     })
-    const {input,handleInputChange,handleSubmit,messages,} = useChat({
+    const {input,handleInputChange,handleSubmit,messages,status} = useChat({
         api: '/api/chat',
         body: {
             chatId
@@ -51,7 +51,7 @@ const ChatComponent = ({chatId}: Props) => {
         </div>
 
         {/* message list */}
-        <MessageList messages={messages} isLoading={isLoading} />
+        <MessageList messages={messages} isLoading={isLoading} status={status}/>
 
         <form onSubmit={handleSubmit} className='sticky bottom-0 inset-x-0 p-2 bg-gray-800 border-t justify-center flex items-center gap-2'>
             <Input value={input} onChange={handleInputChange} placeholder='Ask any question...' className='' />

@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     typescript: {
     ignoreBuildErrors: true,
   },
+  allowedDevOrigins: [
+    'https://812568c68320af.lhr.life'
+  ]
 };
 
 export default nextConfig;

@@ -1,25 +1,30 @@
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats,messages as messagesSchema } from "@/lib/db/schema";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { google } from "@ai-sdk/google";
 import { streamText, Message } from "ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 // export const runtime = "edge";
 
-const google = createGoogleGenerativeAI({
-    apiKey: process.env.GOOGLE_GEMINI_API_KEY,
-});
+// const google = createGoogleGenerativeAI({
+//     apiKey: process.env.GOOGLE_GEMINI_API_KEY!,
+// });
 
 export async function POST(req: Request) {
     try {
         const { messages, chatId } = await req.json();
+        console.log("Received request:: POST /api/chat :: ", { messages, chatId });
         const _chats = await db
             .select()
             .from(chats)
             .where(eq(chats.id, chatId));
+
+        console.log("Found chats:: ", _chats);
+
         if (_chats.length !== 1) {
+            console.log("Error:: Chat not found");
             return NextResponse.json(
                 { error: "Chat not found" },
                 { status: 404 }
@@ -27,38 +32,39 @@ export async function POST(req: Request) {
         }
         const fileKey = _chats[0].fileKey;
         const lastMessage = messages[messages.length - 1];
+        console.log("Getting context for last message:: ", lastMessage.content);
         const context = await getContext(lastMessage.content, fileKey);
+        console.log("Context:: ", context);
 
         const prompt = {
             role: "system",
-            content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
-      The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-      AI is a well-behaved and well-mannered individual.
-      AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-      AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
-      AI assistant is a big fan of Pinecone and Vercel.
-      START CONTEXT BLOCK
-      ${context}
-      END OF CONTEXT BLOCK
-      AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
-      If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
-      AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
-      AI assistant will not invent anything that is not drawn directly from the context.
-      `,
+            content: `AI assistant is a brand new, powerful, human-like artificial intelligence. The AI will be provided some context/text from a PDF and the AI will give answers based on the following instructions in HTML format. The AI will ONLY ANSWER with HTML.
+              The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
+              AI is a well-behaved and well-mannered individual.
+              AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
+              AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
+              AI assistant is a big fan of Pinecone and Vercel.
+              START CONTEXT BLOCK
+              ${context}
+              END OF CONTEXT BLOCK
+              AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
+              If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
+              AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
+              AI assistant will not invent anything that is not drawn directly from the context.
+              `,
         };
 
-
-
         const result = streamText({
-            model: google("gemini-1.5-flash"),
+            model: google("gemini-2.5-flash"),
             messages: [prompt, ...messages.filter((msg: Message) => msg.role == 'user' )],
             
             onFinish: async (message) => {
+                console.log("Finished streaming:: ", message);
                 await db.insert(messagesSchema).values({
-                role: 'system',
-                content: message.text,
-                chatId: chatId,
-            })
+                    role: 'system',
+                    content: message.text,
+                    chatId: chatId,
+                })
             }
         });
 
@@ -68,6 +74,7 @@ export async function POST(req: Request) {
             chatId: chatId,
         })
 
+        console.log("Returning response:: ");
         return result.toDataStreamResponse();
     } catch (error) {
         console.error("Error:: POST /api/chat :: ", error);

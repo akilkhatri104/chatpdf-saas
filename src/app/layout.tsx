@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Provider from "@/components/Provider";
 import {Toaster} from 'react-hot-toast'
+import Script from "next/script";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -29,11 +30,12 @@ export default function RootLayout({
             <Provider>
                 <html lang="en">
                     <body
-                        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
                     >
                         {children}
                         <Toaster />
                     </body>
+                    <Script src="https://checkout.razorpay.com/v1/checkout.js" />
                 </html>
             </Provider>
         </ClerkProvider>

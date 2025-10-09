@@ -1,7 +1,8 @@
 import FileUpload from "@/components/FileUpload";
+import { SubscribeButton } from "@/components/SubscribeButton";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
-import { chats } from "@/lib/db/schema";
+import { chats, DrizzleUserSubscription, userSubscriptions } from "@/lib/db/schema";
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
@@ -11,13 +12,19 @@ import Link from "next/link";
 export default async function Home() {
     const { userId } = await auth();
     const isAuth = !!userId;
+    let subscription: DrizzleUserSubscription | undefined = undefined
+    let hasSubscription = false
     let firstChat = undefined
 
-    if(userId) {
+    if (userId) {
         const _chats = await db.select().from(chats).where(eq(chats.userId, userId));
-        if(_chats.length > 0) {
+        if (_chats.length > 0) {
             firstChat = _chats[_chats.length - 1];
         }
+
+        const _subscription = await db.select().from(userSubscriptions).where(eq(userSubscriptions.userId, userId)).limit(1)
+        subscription = _subscription && _subscription.length > 0 ? _subscription[0] : undefined
+        hasSubscription = subscription ? true : false
     }
     return (
         <div className="w-screen min-h-screen bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white">
@@ -31,7 +38,7 @@ export default async function Home() {
                     </div>
                     <div className="flex  mt-3">
                         {isAuth && firstChat && (
-                            <Link href={`/chat/${firstChat.id}`}><Button variant={"secondary"}>Go to Chats</Button></Link>
+                            <Link href={`/chat/${firstChat.id}`}><Button>Go to Chats</Button></Link>
                         )}
                     </div>
                     <p className="max-w-xl mt-1 text-lg text-gray-300">
@@ -49,6 +56,19 @@ export default async function Home() {
                                     <LogIn className="" />
                                 </Button>
                             </Link>
+                        )}
+                    </div>
+
+                    <div className="mt-4">
+                        {(isAuth && !hasSubscription) && (
+                            <SubscribeButton />
+                        )}
+                        {(isAuth && hasSubscription) && (
+                            <Button>
+                                <Link href={'/subscription'}>
+                                    Manage Your Subscription
+                                </Link>
+                            </Button>
                         )}
                     </div>
                 </div>

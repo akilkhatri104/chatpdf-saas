@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const gemini = new GoogleGenAI({apiKey: process.env.GOOGLE_GEMINI_API_KEY})
+const gemini = new GoogleGenAI({apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!})
 
 export async function getEmbeddings(text : string){
     try {

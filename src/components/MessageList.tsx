@@ -6,9 +6,10 @@ import React, { useEffect } from "react";
 type Props = {
     messages: Message[];
     isLoading: boolean;
+    status: 'submitted' | 'streaming' | 'ready' | 'error'
 };
 
-const MessageList = ({ messages,isLoading }: Props) => {
+const MessageList = ({ messages,isLoading ,status}: Props) => {
     useEffect(() => {
         const chatContainer = document.getElementById('chat-container');
         if (chatContainer) {
@@ -42,10 +43,11 @@ const MessageList = ({ messages,isLoading }: Props) => {
                         'bg-gray-700 text-gray-200': message.role === 'system',
                         'bg-gray-600 text-gray-300': message.role === 'assistant',
                     })}>
-                        <p>{message.content}</p>
+                        <p dangerouslySetInnerHTML={{__html: message.content}}/>
                     </div>
                 </div>
             ))}
+            {status === 'submitted' && (<Loader2 className="animate-spin"/>)}
         </div>
     )
 

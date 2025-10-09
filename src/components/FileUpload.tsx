@@ -8,6 +8,7 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import {toast} from 'react-hot-toast'
 import { useRouter } from "next/navigation";
+import { hasReachedFreePlanLimit, isSubscriptionActive } from "@/lib/razorpay";
 
 const FileUpload = () => {
     const router = useRouter()
@@ -37,6 +38,19 @@ const FileUpload = () => {
 
             try {
                 setUploading(true)
+
+                const hasReachedLimit = await hasReachedFreePlanLimit()
+
+                if(hasReachedLimit){
+                    toast.error("User has reached free plan limit. Please subscribe to Pro Plan at Rs 100.")
+                    return
+                }
+
+                if(! (await isSubscriptionActive())){
+                    toast.error("User does not have an active subscription")
+                    return
+                }
+
                 const file = accessceptedFiles[0];
                 if (file.size > 10 * 1024 * 1024) {
                     // 10 MB limit
@@ -66,7 +80,7 @@ const FileUpload = () => {
                 })
             } catch (error) {
                 console.error("Error uploading file:", error);
-                toast.error("Failed to upload file. Please try again.");
+                toast.error(error instanceof Error ? error.message : "Failed to upload file. Please try again.");
             } finally {
                 setUploading(false)
             }

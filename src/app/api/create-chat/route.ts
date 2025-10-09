@@ -1,8 +1,10 @@
+import { userHasActiveSubscription } from "@/lib/razorpay";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { loadS3IntoPinecone } from "@/lib/pinecone";
 import { getS3Url } from "@/lib/s3";
 import { auth } from "@clerk/nextjs/server";
+import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -16,6 +18,7 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             );
         }
+
         const body = await req.json();
         const { fileKey, fileName } = body;
         console.log(fileKey, fileName);
@@ -25,6 +28,26 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             );
         }
+
+        const hasActiveSub = await userHasActiveSubscription();
+
+        if (!hasActiveSub) {
+            const lastChat = await db
+                .select()
+                .from(chats)
+                .where(eq(chats.userId, userId))
+                .orderBy(desc(chats.createdAt))
+                .limit(1)
+            
+            if(lastChat && lastChat.length === 1){
+                const timediference = new Date().getTime() - lastChat[0].createdAt.getTime()
+                if(timediference < 24 * 60 * 60 * 1000)
+                    return NextResponse.json({
+                        error: "User does not have active subscription and has reached the limit for the free subscription!"
+                },{status: 405})
+            }
+        }
+
         await loadS3IntoPinecone(fileKey);
 
         const chatId = await db

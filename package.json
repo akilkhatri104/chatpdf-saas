@@ -38,6 +38,7 @@
     "langchain": "^0.3.27",
     "lucide-react": "^0.511.0",
     "md5": "^2.3.0",
+    "nanoid": "^5.1.6",
     "next": "15.3.3",
     "pdf-parse": "^1.1.1",
     "razorpay": "^2.9.6",
