@@ -3,6 +3,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@source "../../node_modules/streamdown/dist/index.js";
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

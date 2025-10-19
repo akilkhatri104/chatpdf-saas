@@ -14,14 +14,14 @@ type Props = {
 }
 
 
-const ChatComponent = ({chatId}: Props) => {
+const ChatComponent = ({ chatId }: Props) => {
     // const [isFetching, setIsFetching] = React.useState(false);
-    const {data: chatMessages,isLoading}= useQuery({
+    const { data: chatMessages, isLoading } = useQuery({
         queryKey: ['chat', chatId],
-        queryFn: async() => {
+        queryFn: async () => {
             // setIsFetching(true);
             try {
-                const response = await axios.post(`/api/get-messages`,{chatId});
+                const response = await axios.post(`/api/get-messages`, { chatId });
                 if (response.status !== 200) {
                     throw new Error('Failed to fetch messages');
                 }
@@ -31,36 +31,36 @@ const ChatComponent = ({chatId}: Props) => {
                 console.error('Error fetching messages:', error);
                 // setIsFetching(false);
                 return [];
-                
+
             }
         }
     })
-    const {input,handleInputChange,handleSubmit,messages,status} = useChat({
+    const { input, handleInputChange, handleSubmit, messages, status } = useChat({
         api: '/api/chat',
         body: {
             chatId
         },
         initialMessages: chatMessages || []
     })
+    
+    return (
+        <div className='text-gray-200 bg-gray-900 flex flex-col h-full w-full' >
+            {/* header */}
+            <div className='sticky top-0 z-20 p-3 h-fit border-b bg-gray-900'>
+                <h3 className='text-xl font-bold'>Chat</h3>
+            </div>
 
-  return (
-    <div className='max-h-screen overflow-auto text-gray-200 bg-gray-900 flex flex-col h-full w-full' >
-        {/* header */}
-        <div className='sticky top-0 inset-x-0 p-2 h-fit border-b'>
-            <h3 className='text-xl font-bold'>Chat</h3>
+            
+            <MessageList messages={messages} isLoading={isLoading} status={status} />
+
+            <form onSubmit={handleSubmit} className='sticky bottom-0 z-20 p-2 bg-gray-800 border-t justify-center flex items-center gap-2'>
+                <Input value={input} onChange={handleInputChange} placeholder='Ask any question...' className='' />
+                <Button>
+                    <Send className='h-4 w-4' />
+                </Button>
+            </form>
         </div>
-
-        {/* message list */}
-        <MessageList messages={messages} isLoading={isLoading} status={status}/>
-
-        <form onSubmit={handleSubmit} className='sticky bottom-0 inset-x-0 p-2 bg-gray-800 border-t justify-center flex items-center gap-2'>
-            <Input value={input} onChange={handleInputChange} placeholder='Ask any question...' className='' />
-            <Button>
-                <Send className='h-4 w-4'/>
-            </Button>
-        </form>
-    </div>
-  )
+    )
 }
 
 export default ChatComponent

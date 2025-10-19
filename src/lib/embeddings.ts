@@ -4,8 +4,12 @@ const gemini = new GoogleGenAI({apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY
 
 export async function getEmbeddings(text : string){
     try {
+        text = text.replace(/\n/g,' ')
+        if(text.length === 0){
+            throw new Error("No text given")
+        }
         const response = await gemini.models.embedContent({
-            model: 'gemini-embedding-exp-03-07',
+            model: 'gemini-embedding-001',
             contents: text.replace(/\n/g,' '),
             config: {
                 outputDimensionality: 1536

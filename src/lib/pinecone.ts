@@ -47,7 +47,8 @@ export const loadS3IntoPinecone = async (fileKey: string) => {
     const documents = await Promise.all(pages.map(prepareDocument));
 
     // vectorize each document
-    const vectors = await Promise.all(documents.flat().map(embedDocument));
+    let vectors = await Promise.all(documents.flat().map(embedDocument));
+    vectors = vectors.filter(vector => vector !== undefined)
 
     // upload to pinecone
     const client = await getPineconeClient();
@@ -122,6 +123,9 @@ async function prepareDocument(pdf: PDFPage) {
 
 export async function embedDocument(doc: Document) {
     try {
+        if(doc.pageContent.replace(/\n/g,' ').length == 0){
+            return 
+        }
         const embeddings = await getEmbeddings(doc.pageContent);
         const hash = md5(doc.pageContent);
 
@@ -135,6 +139,5 @@ export async function embedDocument(doc: Document) {
         };
     } catch (error) {
         console.error("Error:: embedDocument :: ", error);
-        throw error;
     }
 }

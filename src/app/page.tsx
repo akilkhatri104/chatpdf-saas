@@ -51,7 +51,7 @@ export default async function Home() {
                             <FileUpload />
                         ) : (
                             <Link href="/sign-in">
-                                <Button variant="secondary">
+                                <Button>
                                     Login to get started
                                     <LogIn className="" />
                                 </Button>
@@ -60,16 +60,6 @@ export default async function Home() {
                     </div>
 
                     <div className="mt-4">
-                        {/* {(isAuth && !hasSubscription) && (
-                            <SubscribeButton />
-                        )}
-                        {(isAuth && hasSubscription) && (
-                            <Button>
-                                <Link href={'/subscription'}>
-                                    Manage Your Subscription
-                                </Link>
-                            </Button>
-                        )} */}
                         {isAuth && <SubscribeButton />}
                     </div>
                 </div>

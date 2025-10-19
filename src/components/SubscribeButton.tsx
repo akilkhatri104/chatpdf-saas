@@ -7,10 +7,14 @@ import { Button } from "./ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils";
 
+type Props = {
+    variant: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined,
+    className: string
+}
 
-
-export const SubscribeButton = (Props: any) => {
+export const SubscribeButton = ({variant,className}: Props) => {
     const [isLoading, setIsLoading] = useState(false);
     const { data: subscription, isPending,isFetched } = useQuery({
         queryKey: ['subscription'],
@@ -89,13 +93,15 @@ export const SubscribeButton = (Props: any) => {
     };
 
     return (
-        isPending  ? <Skeleton className="w-[150px] h-[40px] rounded-md bg-accent-foreground" /> :
+        isPending  ? <Skeleton className={cn(`w-[150px] h-[40px] rounded-md  ${className}`,{
+            'bg-accent-foreground' : !variant
+        })} /> :
             <Button
                 onClick={handleSubscribe}
                 disabled={isLoading}
-                className="w-[150px] h-[40px]"
-                {...Props}
-            >
+                className={`w-[150px] h-[40px] ${className}`}
+                variant={variant}
+            >   
                 {
 
                     subscription && pathname !== '/subscription' ? ('Manage Subscription') : (isLoading ? "Processing..." : "Subscribe to Pro Plan")
