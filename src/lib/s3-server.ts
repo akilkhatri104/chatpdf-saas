@@ -9,7 +9,6 @@ import fs from 'fs'
 import { Readable } from "stream";
 import path from "path";
 import os from 'os'
-import { FileKey } from "lucide-react";
 
 const s3 = new S3Client({
             credentials: {

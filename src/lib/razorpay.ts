@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { chats, userSubscriptions } from "@/lib/db/schema";
 import { handleError } from "@/lib/utils";
 import { currentUser, User } from "@clerk/nextjs/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import Razorpay from "razorpay";
 import { Customers } from "razorpay/dist/types/customers";
 import { Subscriptions } from "razorpay/dist/types/subscriptions";
@@ -25,27 +25,29 @@ export async function createSubscription(): Promise<{
             throw new Error("Unauthorized");
         }
 
-        const existingSubscription = await db
+        const [existingSubscription] = await db
             .select()
             .from(userSubscriptions)
             .where(eq(userSubscriptions.userId, user.id))
             .limit(1);
 
-        if (existingSubscription && existingSubscription.length !== 0) {
+        if (existingSubscription) {
             if (
-                existingSubscription[0].subscriptionStatus === "created" &&
-                typeof existingSubscription[0].razorpayCustomerId ===
+                existingSubscription.subscriptionStatus === "created" &&
+                typeof existingSubscription.razorpayCustomerId ===
                     "string" &&
-                typeof existingSubscription[0].razorpaySubscriptionId ===
+                typeof existingSubscription.razorpaySubscriptionId ===
                     "string"
             ) {
                 return {
                     subscriptionId:
-                        existingSubscription[0].razorpaySubscriptionId,
-                    customerId: existingSubscription[0].razorpayCustomerId,
+                        existingSubscription.razorpaySubscriptionId,
+                    customerId: existingSubscription.razorpayCustomerId,
                 };
-            } else {
+            } else if (existingSubscription.subscriptionStatus === 'active' && await isSubscriptionActive()) {
                 throw new Error("User already has a subscription");
+            } else {
+                await db.delete(userSubscriptions).where(eq(userSubscriptions.id,existingSubscription.id))
             }
         }
 
@@ -135,6 +137,7 @@ export async function syncRazorpayDataToDB(subscriptionId: string,paymentsLocked
     }
 }
 
+
 export async function getSubscriptionIDForLoggedInUser() {
     try {
         const user = await currentUser();
@@ -142,6 +145,9 @@ export async function getSubscriptionIDForLoggedInUser() {
             throw new Error("User not logged in");
         }
         const userId = user.id;
+
+        
+        
 
         const res = await db
             .select()
@@ -158,6 +164,32 @@ export async function getSubscriptionIDForLoggedInUser() {
         return {
             error: error instanceof Error ? error.message : "An Error Occured",
         };
+    }
+}
+export async function getSubscriptionForLoggedInUser() {
+    try {
+        const user = await currentUser();
+        if (!user) {
+            throw new Error("User not logged in");
+        }
+        const userId = user.id;
+        const result = await db.execute(sql`SELECT EXISTS(SELECT 1 FROM ${userSubscriptions} WHERE ${userSubscriptions.userId} = ${userId})`)
+        console.log(result)
+        if(result.rows.length === 0 || result.rows[0].exists === false){
+            throw new Error("Subscription does not exist")
+        }
+
+        const [subscription] = await db
+            .select()
+            .from(userSubscriptions)
+            .where(eq(userSubscriptions.userId, userId))
+            .limit(1);
+
+        if(!subscription || subscription === undefined)
+            throw new Error("Subscription not found")
+        return subscription
+    } catch (error) {
+        throw error
     }
 }
 
@@ -314,7 +346,8 @@ export async function cancelSubscriptionById(subscriptionId: string){
             subscriptionStatus: data.status,
             currentStart: new Date(data?.current_start as number * 1000),
             currentEnd: new Date(data.current_end as number * 1000),
-            chargeAt: new Date(data.start_at as number * 1000),
+            chargeAt: new Date(data.charge_at as number * 1000),
+            paymentsLocked: true
         });
         
         

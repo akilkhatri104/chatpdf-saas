@@ -1,31 +1,46 @@
 "use client";
 
-import { useState } from "react";
-import { createSubscription, getSubscriptionIDForLoggedInUser, isPaymentLocked, lockPaymentsOnSubscription, syncRazorpayDataToDB } from "@/lib/razorpay";
+import {  useState } from "react";
+import { createSubscription, getSubscriptionForLoggedInUser, getSubscriptionIDForLoggedInUser, isPaymentLocked, lockPaymentsOnSubscription, syncRazorpayDataToDB } from "@/lib/razorpay";
 import toast from "react-hot-toast";
 import { Button } from "./ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 
 export const SubscribeButton = (Props: any) => {
     const [isLoading, setIsLoading] = useState(false);
-
+    const { data: subscription, isPending,isFetched } = useQuery({
+        queryKey: ['subscription'],
+        queryFn: getSubscriptionForLoggedInUser,
+        refetchOnWindowFocus: false
+    })
+    const router = useRouter()
+    const pathname = usePathname()
     const handleSubscribe = async () => {
+        if (subscription && pathname !== '/subscription') {
+            router.push('/subscription')
+            return
+        }
+
         setIsLoading(true);
         try {
             const data = await createSubscription()
 
-            if(data.error && typeof data.error === 'string' && !data.customerId && !data.subscriptionId){
+            if (data.error && typeof data.error === 'string' && !data.customerId && !data.subscriptionId) {
                 toast.error(data.error)
                 return
             }
-            const {subscriptionId,customerId} = data
-            
-            if(!subscriptionId || !customerId){
+            const { subscriptionId, customerId } = data
+
+            if (!subscriptionId || !customerId) {
                 toast.error("Error while creating subscription")
                 return
             }
-            
-            if(await isPaymentLocked(subscriptionId)){
+
+            if (await isPaymentLocked(subscriptionId)) {
                 toast.error("Payments for subscriptions are locked. This could be because you have already made the payment!")
                 return
             }
@@ -36,8 +51,8 @@ export const SubscribeButton = (Props: any) => {
                 name: "ChatPDF SaaS",
                 description: "Pro Plan Subscription",
                 handler: async function () {
-                    const {error,subscriptionId} = await getSubscriptionIDForLoggedInUser()
-                    if(error || !subscriptionId){
+                    const { error, subscriptionId } = await getSubscriptionIDForLoggedInUser()
+                    if (error || !subscriptionId) {
                         toast.error(error || "An error occured")
                         return
                     }
@@ -58,7 +73,7 @@ export const SubscribeButton = (Props: any) => {
                         setIsLoading(false);
                         toast.error("Payment was not completed.");
                     },
-                    
+
                 }
             };
 
@@ -68,19 +83,24 @@ export const SubscribeButton = (Props: any) => {
         } catch (error) {
             console.error("Subscription failed:", error);
             toast.error("Something went wrong. Please try again.");
-        }finally{
+        } finally {
             setIsLoading(false)
         }
     };
 
     return (
-        <Button
-            onClick={handleSubscribe}
-            disabled={isLoading}
-            className=""
-            {...Props}
-        >
-            {isLoading ? "Processing..." : "Subscribe to Pro Plan"}
-        </Button>
+        isPending  ? <Skeleton className="w-[150px] h-[40px] rounded-md bg-accent-foreground" /> :
+            <Button
+                onClick={handleSubscribe}
+                disabled={isLoading}
+                className="w-[150px] h-[40px]"
+                {...Props}
+            >
+                {
+
+                    subscription && pathname !== '/subscription' ? ('Manage Subscription') : (isLoading ? "Processing..." : "Subscribe to Pro Plan")
+                }
+
+            </Button>
     );
 };

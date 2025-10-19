@@ -60,7 +60,7 @@ export default async function Home() {
                     </div>
 
                     <div className="mt-4">
-                        {(isAuth && !hasSubscription) && (
+                        {/* {(isAuth && !hasSubscription) && (
                             <SubscribeButton />
                         )}
                         {(isAuth && hasSubscription) && (
@@ -69,7 +69,8 @@ export default async function Home() {
                                     Manage Your Subscription
                                 </Link>
                             </Button>
-                        )}
+                        )} */}
+                        {isAuth && <SubscribeButton />}
                     </div>
                 </div>
             </div>
