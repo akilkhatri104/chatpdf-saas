@@ -29,11 +29,13 @@ async function ChatPage({ params: { chatId } }: Props) {
     if (!_chats) {
         return redirect("/");
     }
-    if (!_chats.find((chat) => chat.id === parseInt(chatId))) {
-        return redirect("/");
-    }
+    
 
     const currentChat: DrizzleChat | undefined = _chats.find((chat) => chat.id === parseInt(chatId));
+    if(!currentChat){
+        return redirect('/')
+    }
+    
     return (
         <SidebarProvider>
             <ChatSideBar chats={_chats} chatId={parseInt(chatId)} />

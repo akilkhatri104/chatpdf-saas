@@ -23,6 +23,7 @@ import { DialogClose, DialogDescription } from "@radix-ui/react-dialog";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { SubscribeButton } from "./SubscribeButton";
 
 type Props = {
     chats: DrizzleChat[];
@@ -159,8 +160,10 @@ const ChatSideBar = ({ chats, chatId }: Props) => {
                 ))}
             </SidebarContent>
             <SidebarFooter>
-                <Link href="/">Home</Link>
-                <Link href="/">Source</Link>
+                <Button asChild variant="outline" className="w-full">
+                    <Link href="/" className="">Home</Link>
+                </Button>
+                <SubscribeButton variant="outline" className="w-full" />
             </SidebarFooter>
         </Sidebar>
     );
