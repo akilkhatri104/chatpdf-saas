@@ -33,18 +33,18 @@ const PDFChatTabs = ({ currentChat }: Props) => {
             </div>
 
             {/* Mobile */}
-            <Tabs defaultValue="chat" className="md:hidden">
-                <div className="flex flex-row p-3">
+            <Tabs defaultValue="chat" className="md:hidden flex flex-col h-full">
+                <div className="flex flex-row p-3 sticky top-0 bg-background z-10 border-b">
                     <SidebarTrigger className="md:hidden inline sticky right-0 w-5 p-2" />
                     <TabsList className="mx-auto">
                         <TabsTrigger value="pdf">{currentChat.pdfName}</TabsTrigger>
                         <TabsTrigger value="chat">Chat</TabsTrigger>
                     </TabsList>
                 </div>
-                <TabsContent value="pdf" className="">
+                <TabsContent value="pdf" className="flex-1 overflow-y-auto">
                     <PDFViewer pdfUrl={currentChat?.pdfUrl || ""} />
                 </TabsContent>
-                <TabsContent value="chat" className="">
+                <TabsContent value="chat" className="flex-1">
                     <ChatComponent chatId={currentChat?.id} />
                 </TabsContent>
             </Tabs>
