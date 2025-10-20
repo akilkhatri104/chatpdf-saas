@@ -44,13 +44,11 @@ const ChatComponent = ({ chatId }: Props) => {
     })
     
     return (
-        <div className='text-gray-200 bg-gray-900 flex flex-col h-full w-full' >
+        <div className='text-gray-200 bg-gray-900 flex flex-col h-screen w-full' >
             {/* header */}
             <div className='sticky top-0 z-20 p-3 h-fit border-b bg-gray-900'>
                 <h3 className='text-xl font-bold'>Chat</h3>
             </div>
-
-            
             <MessageList messages={messages} isLoading={isLoading} status={status} />
 
             <form onSubmit={handleSubmit} className='sticky bottom-0 z-20 p-2 bg-gray-800 border-t justify-center flex items-center gap-2'>

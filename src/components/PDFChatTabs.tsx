@@ -14,7 +14,6 @@ const PDFChatTabs = ({ currentChat }: Props) => {
     return (
         <div className="flex flex-col w-full h-full">
             <div className="flex flex-row">
-                <SidebarTrigger className="md:hidden inline sticky right-0 w-5 p-2" />
             </div>
 
             {/* Desktop */}
@@ -35,10 +34,13 @@ const PDFChatTabs = ({ currentChat }: Props) => {
 
             {/* Mobile */}
             <Tabs defaultValue="chat" className="md:hidden">
-                <TabsList className="mx-auto">
-                    <TabsTrigger value="pdf">{currentChat.pdfName}</TabsTrigger>
-                    <TabsTrigger value="chat">Chat</TabsTrigger>
-                </TabsList>
+                <div className="flex flex-row p-3">
+                    <SidebarTrigger className="md:hidden inline sticky right-0 w-5 p-2" />
+                    <TabsList className="mx-auto">
+                        <TabsTrigger value="pdf">{currentChat.pdfName}</TabsTrigger>
+                        <TabsTrigger value="chat">Chat</TabsTrigger>
+                    </TabsList>
+                </div>
                 <TabsContent value="pdf" className="">
                     <PDFViewer pdfUrl={currentChat?.pdfUrl || ""} />
                 </TabsContent>
