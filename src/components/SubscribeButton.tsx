@@ -16,7 +16,7 @@ type Props = {
 
 export const SubscribeButton = ({variant,className}: Props) => {
     const [isLoading, setIsLoading] = useState(false);
-    const { data: subscription, isPending,isFetched } = useQuery({
+    const { data: subscription, isPending } = useQuery({
         queryKey: ['subscription'],
         queryFn: getSubscriptionForLoggedInUser,
         refetchOnWindowFocus: false

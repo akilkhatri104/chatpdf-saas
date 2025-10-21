@@ -174,7 +174,6 @@ export async function getSubscriptionForLoggedInUser() {
         }
         const userId = user.id;
         const result = await db.execute(sql`SELECT EXISTS(SELECT 1 FROM ${userSubscriptions} WHERE ${userSubscriptions.userId} = ${userId})`)
-        console.log(result)
         if(result.rows.length === 0 || result.rows[0].exists === false){
             throw new Error("Subscription does not exist")
         }
