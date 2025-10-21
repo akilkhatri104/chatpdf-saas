@@ -6,8 +6,11 @@ import { getS3Url } from "@/lib/s3";
 import { auth } from "@clerk/nextjs/server";
 import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
+import { deleteFromS3 } from "@/lib/s3-server";
 
 export async function POST(req: NextRequest) {
+    const body = await req.json();
+    const { fileKey, fileName } = body;
     try {
         const { userId } = await auth();
         if (!userId) {
@@ -19,8 +22,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const body = await req.json();
-        const { fileKey, fileName } = body;
         console.log(fileKey, fileName);
         if (!fileKey || !fileName) {
             return NextResponse.json(
@@ -37,14 +38,18 @@ export async function POST(req: NextRequest) {
                 .from(chats)
                 .where(eq(chats.userId, userId))
                 .orderBy(desc(chats.createdAt))
-                .limit(1)
-            
-            if(lastChat && lastChat.length === 1){
-                const timediference = new Date().getTime() - lastChat[0].createdAt.getTime()
-                if(timediference < 24 * 60 * 60 * 1000)
-                    return NextResponse.json({
-                        error: "User does not have active subscription and has reached the limit for the free subscription!"
-                },{status: 405})
+                .limit(1);
+
+            if (lastChat && lastChat.length === 1) {
+                const timediference =
+                    new Date().getTime() - lastChat[0].createdAt.getTime();
+                if (timediference < 24 * 60 * 60 * 1000)
+                    return NextResponse.json(
+                        {
+                            error: "User does not have active subscription and has reached the limit for the free subscription!",
+                        },
+                        { status: 405 }
+                    );
             }
         }
 
@@ -72,6 +77,7 @@ export async function POST(req: NextRequest) {
         );
     } catch (error) {
         console.error("Error in POST /api/create-app:", error);
+        await deleteFromS3(fileKey)
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }

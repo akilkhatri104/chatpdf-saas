@@ -27,27 +27,31 @@ export async function getMatchesFromEmbeddings(
 }
 
 export async function getContext(query: string, fileKey: string) {
-    const queryEmbeddings = await getEmbeddings(query);
-    console.log("Query Embeddings: ", queryEmbeddings);
+    try {
+        const queryEmbeddings = await getEmbeddings(query);
+        console.log("Query Embeddings: ", queryEmbeddings);
+        
+        const matches = await getMatchesFromEmbeddings(queryEmbeddings || [], fileKey);
+        console.log("Matches found: ", matches.length);
     
-    const matches = await getMatchesFromEmbeddings(queryEmbeddings || [], fileKey);
-    console.log("Matches found: ", matches.length);
-
-    console.log("Matches: ", matches);
+        console.log("Matches: ", matches);
+        
+        
     
+        const qualifyingMatchs = matches.filter(match => match.score && match.score > 0.5)
+        console.log("Qualifying Matches: ", qualifyingMatchs.length);
+        console.log("Qualifying Matches: ", qualifyingMatchs);
+        
+        
     
-
-    const qualifyingMatchs = matches.filter(match => match.score && match.score > 0.5)
-    console.log("Qualifying Matches: ", qualifyingMatchs.length);
-    console.log("Qualifying Matches: ", qualifyingMatchs);
+        type Metadata = {
+            text: string
+            pageNumber: number
+        }
     
-    
-
-    type Metadata = {
-        text: string
-        pageNumber: number
+        const docs = qualifyingMatchs.map(match => (match.metadata as Metadata).text)
+        return docs.join('\n').substring(0,3000)
+    } catch (error) {
+        console.error("getContext :: ",error)
     }
-
-    const docs = qualifyingMatchs.map(match => (match.metadata as Metadata).text)
-    return docs.join('\n').substring(0,3000)
 }

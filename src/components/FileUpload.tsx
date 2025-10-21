@@ -72,9 +72,9 @@ const FileUpload = () => {
                         toast.success('Chat Created!')
                         router.push(`/chat/${chatId}`)
                     },
-                    onError: (error) => {
-                        console.error("Error uploading file:", error);
-                        toast.error("Failed to upload file. Please try again.");
+                    onError: async (error,{fileKey}) => {
+                        console.error("Error uploading file:", error)
+                        toast.error("Failed to upload file. Please try again.")
                         
                     }
                 })

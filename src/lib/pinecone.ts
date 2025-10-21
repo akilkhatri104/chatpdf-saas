@@ -1,4 +1,4 @@
-import { Pinecone, } from "@pinecone-database/pinecone";
+import { Pinecone, PineconeRecord, RecordMetadata, } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import {
@@ -47,8 +47,11 @@ export const loadS3IntoPinecone = async (fileKey: string) => {
     const documents = await Promise.all(pages.map(prepareDocument));
 
     // vectorize each document
-    let vectors = await Promise.all(documents.flat().map(embedDocument));
-    vectors = vectors.filter(vector => vector !== undefined)
+    let vectors = await Promise.all(documents.flat().map(embedDocument)) as PineconeRecord<RecordMetadata>[] 
+    vectors = vectors.filter(vector => vector)
+    if(!vectors || vectors === undefined || vectors.length === 0){
+        throw new Error("No vectors generated for the document")
+    }
 
     // upload to pinecone
     const client = await getPineconeClient();
@@ -92,7 +95,7 @@ export const deletePineconeNameSpace = async (fileKey: string): Promise<{
         }
     } catch (error) {
         return {
-            error: error.message,
+            error: error instanceof Error ? error.message : "An error occured while deleting namespace",
             success: false
         }
     }
