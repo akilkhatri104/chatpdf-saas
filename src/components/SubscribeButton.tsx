@@ -11,10 +11,10 @@ import { cn } from "@/lib/utils";
 
 type Props = {
     variant: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined,
-    className: string
+    className ?: string
 }
 
-export const SubscribeButton = ({variant,className}: Props) => {
+export const SubscribeButton = ({variant="default",className}: Props) => {
     const [isLoading, setIsLoading] = useState(false);
     const { data: subscription, isPending } = useQuery({
         queryKey: ['subscription'],

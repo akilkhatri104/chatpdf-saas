@@ -10,7 +10,7 @@ import SubscriptionCancelButton from '@/components/SubscriptionCancelButton'
 import { useQuery } from '@tanstack/react-query'
 
 function SubscriptionPage() {
-    const { isPending, isError, error, isFetched, data: subscription } = useQuery({
+    const { isPending,data: subscription } = useQuery({
         queryKey: ['subscription'],
         queryFn: getSubscriptionForLoggedInUser,
     })

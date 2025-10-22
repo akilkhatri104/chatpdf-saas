@@ -46,11 +46,6 @@ const FileUpload = () => {
                     return
                 }
 
-                if(! (await isSubscriptionActive())){
-                    toast.error("User does not have an active subscription")
-                    return
-                }
-
                 const file = accessceptedFiles[0];
                 if (file.size > 10 * 1024 * 1024) {
                     // 10 MB limit
@@ -72,7 +67,7 @@ const FileUpload = () => {
                         toast.success('Chat Created!')
                         router.push(`/chat/${chatId}`)
                     },
-                    onError: async (error,{fileKey}) => {
+                    onError: async (error) => {
                         console.error("Error uploading file:", error)
                         toast.error("Failed to upload file. Please try again.")
                         

@@ -256,7 +256,7 @@ export async function hasReachedFreePlanLimit() {
     try {
         const user = await currentUser();
         if (!user) return true;
-        const hasActiveSub = await userHasActiveSubscription();
+        const hasActiveSub = await isSubscriptionActive();
 
         if (!hasActiveSub) {
             const lastChat = await db

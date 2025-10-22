@@ -1,4 +1,4 @@
-import { userHasActiveSubscription } from "@/lib/razorpay";
+import { hasReachedFreePlanLimit, isSubscriptionActive, } from "@/lib/razorpay";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { loadS3IntoPinecone } from "@/lib/pinecone";
@@ -11,9 +11,11 @@ import { deleteFromS3 } from "@/lib/s3-server";
 export async function POST(req: NextRequest) {
     const body = await req.json();
     const { fileKey, fileName } = body;
+    let err = false
     try {
         const { userId } = await auth();
         if (!userId) {
+            err = true
             return NextResponse.json(
                 {
                     error: "Unauthorized",
@@ -24,13 +26,14 @@ export async function POST(req: NextRequest) {
 
         console.log(fileKey, fileName);
         if (!fileKey || !fileName) {
+            err = true
             return NextResponse.json(
                 { error: "Missing fileKey or fileName", success: false },
                 { status: 400 }
             );
         }
 
-        const hasActiveSub = await userHasActiveSubscription();
+        const hasActiveSub = await hasReachedFreePlanLimit();
 
         if (!hasActiveSub) {
             const lastChat = await db
@@ -43,13 +46,15 @@ export async function POST(req: NextRequest) {
             if (lastChat && lastChat.length === 1) {
                 const timediference =
                     new Date().getTime() - lastChat[0].createdAt.getTime();
-                if (timediference < 24 * 60 * 60 * 1000)
+                if (timediference < 24 * 60 * 60 * 1000){
+                    err = true
                     return NextResponse.json(
                         {
-                            error: "User does not have active subscription and has reached the limit for the free subscription!",
+                            error: "User does not have active subscription and has reached the daily limit of 1 PDF for the free subscription!",
                         },
                         { status: 405 }
                     );
+                }
             }
         }
 
@@ -77,10 +82,13 @@ export async function POST(req: NextRequest) {
         );
     } catch (error) {
         console.error("Error in POST /api/create-app:", error);
-        await deleteFromS3(fileKey)
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }
         );
+    }finally{
+        if(err){
+        await deleteFromS3(fileKey)
+        }
     }
 }
