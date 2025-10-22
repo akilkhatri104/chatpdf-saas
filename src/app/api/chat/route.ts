@@ -14,6 +14,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
+        const llmModel = process.env.GOOGLE_GENERATIVE_AI_LLM_MODEL
+        if(!llmModel){
+            throw new Error("`GOOGLE_GENERATIVE_AI_LLM_MODEL` not configured in envrionment")
+        }
         const { messages, chatId } = await req.json();
         console.log("Received request:: POST /api/chat :: ", { messages, chatId });
         const _chats = await db
@@ -55,7 +59,7 @@ export async function POST(req: Request) {
         };
 
         const result = streamText({
-            model: google("gemini-2.5-flash"),
+            model: google(llmModel),
             messages: [prompt, ...messages.filter((msg: Message) => msg.role == 'user' )],
             
             onFinish: async (message) => {

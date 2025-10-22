@@ -1,15 +1,24 @@
 import { GoogleGenAI } from "@google/genai";
 
-const gemini = new GoogleGenAI({apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!})
 
 export async function getEmbeddings(text : string){
     try {
+        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+        if(!apiKey){
+            throw new Error("`GOOGLE_GENERATIVE_AI_API_KEY` not configured in enviromnet")
+        }
+        const embeddingModel = process.env.GOOGLE_GENERATIVE_AI_EMBEDDING_MODEL
+        if(!embeddingModel){
+            throw new Error("`GOOGLE_GENERATIVE_AI_EMBEDDING_MODEL` not configured in environment")
+        }
+
+        const gemini = new GoogleGenAI({apiKey})
         text = text.replace(/\n/g,' ')
         if(text.length === 0){
             throw new Error("No text given")
         }
         const response = await gemini.models.embedContent({
-            model: 'gemini-embedding-001',
+            model: embeddingModel,
             contents: text.replace(/\n/g,' '),
             config: {
                 outputDimensionality: 1536
