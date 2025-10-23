@@ -6,14 +6,14 @@ import { Inbox, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
-import {toast} from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 import { useRouter } from "next/navigation";
 import { hasReachedFreePlanLimit, isSubscriptionActive } from "@/lib/razorpay";
 
 const FileUpload = () => {
     const router = useRouter()
-    const [uploading,setUploading] = useState(false)
-    const { mutate,isPending } = useMutation({
+    const [uploading, setUploading] = useState(false)
+    const { mutate, isPending } = useMutation({
         mutationFn: async ({
             fileKey,
             fileName,
@@ -38,12 +38,16 @@ const FileUpload = () => {
 
             try {
                 setUploading(true)
+                toast("Uploading PDF and Creating Chat, This may take a while....")
 
-                const hasReachedLimit = await hasReachedFreePlanLimit()
+                const isActive = await isSubscriptionActive()
+                if (!isActive) {
+                    const hasReachedLimit = await hasReachedFreePlanLimit()
 
-                if(hasReachedLimit){
-                    toast.error("User has reached free plan limit. Please subscribe to Pro Plan at Rs 100.")
-                    return
+                    if (hasReachedLimit) {
+                        toast.error("User has reached free plan limit. Please subscribe to Pro Plan at Rs 100.")
+                        return
+                    }
                 }
 
                 const file = accessceptedFiles[0];
@@ -54,7 +58,7 @@ const FileUpload = () => {
                 }
 
                 const data = await uploadToS3(file);
-                if(!data?.fileKey || !data.fileName) {
+                if (!data?.fileKey || !data.fileName) {
                     toast.error("Failed to upload file. Please try again.");
                     return
                 }
@@ -62,15 +66,15 @@ const FileUpload = () => {
                 mutate({
                     fileKey: data.fileKey,
                     fileName: data.fileName,
-                },{
-                    onSuccess: ({chatId}) => {
+                }, {
+                    onSuccess: ({ chatId }) => {
                         toast.success('Chat Created!')
                         router.push(`/chat/${chatId}`)
                     },
                     onError: async (error) => {
                         console.error("Error uploading file:", error)
                         toast.error("Failed to upload file. Please try again.")
-                        
+
                     }
                 })
             } catch (error) {
@@ -95,11 +99,11 @@ const FileUpload = () => {
                     </>
                 ) : (
                     <>
-                    <Inbox className="w-10 h-10" />
-                    <p className="mt-2 text-sm">Drop PDF here</p>
-                </>
+                        <Inbox className="w-10 h-10" />
+                        <p className="mt-2 text-sm">Drop PDF here</p>
+                    </>
                 )}
-                
+
             </div>
         </div>
     );
