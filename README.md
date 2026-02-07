@@ -2,7 +2,7 @@
 
 Lightweight SaaS for conversational PDF search and QA built with Next.js and modern vector/LLM tooling.
 
-Live demo: https://chatpdf-saas-yji4j.ondigitalocean.app/  
+Live demo: https://chatpdf-saas-bay.vercel.app
 GitHub: https://github.com/akilkhatri104/chatpdf-saas
 
 ## Quick overview
