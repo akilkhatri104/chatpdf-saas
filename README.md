@@ -3,7 +3,6 @@
 Lightweight SaaS for conversational PDF search and QA built with Next.js and modern vector/LLM tooling.
 
 Live demo: https://chatpdf-saas-bay.vercel.app
-GitHub: https://github.com/akilkhatri104/chatpdf-saas
 
 ## Quick overview
 This app lets users upload PDF documents, creates vector embeddings, and provides a chat-style interface to ask questions over documents. It includes user auth, storage, optional payments, and uses common vector DB and LLM tooling.
